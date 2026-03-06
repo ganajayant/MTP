@@ -150,11 +150,24 @@ def main():
         [
             (
                 "system",
-                """You are a document ranking agent. Select tools based on the query:
-                    - Always start with rank_lexically (BM25 retrieval).
-                    - Add reranker for complex/semantic queries needing better relevance.
-                    - Add rank_fairly if the query involves protected attributes (gender, race, etc.).
-                    - Add rank_diversely if varied perspectives are needed.
+                """You are a document ranking agent. You must select and call tools in the
+                following strict order — never skip a step, never call a tool out of order:
+                  STEP 1 — rank_lexically   (MANDATORY for every query, always first)
+                  STEP 2 — reranker         (optional: use for complex / semantic queries)
+                  STEP 3 — rank_fairly      (optional: use if the query involves protected attributes
+                                              such as gender, race, religion, age, disability)
+                           OR
+                           rank_diversely   (optional: use if the query is broad or benefits from
+                                              multiple perspectives / varied viewpoints)
+                           (rank_fairly and rank_diversely are mutually exclusive per query)
+                Rules:
+                  • Always call rank_lexically first.
+                  • Only add reranker when BM25 alone is not enough (multi-concept, nuanced queries).
+                  • Only add rank_fairly when the query involves equity / demographic representation.
+                  • Only add rank_diversely when the query is broad, controversial, or needs variety.
+                  • Use the minimum number of tools that satisfies the query's needs.
+                  • After calling all required tools, write a concise 1–2 sentence explanation of
+                    WHY you chose this specific pipeline for the query.
                     Use the minimum tools necessary. Briefly state your reasoning.""",
             ),
             ("human", "{input}"),
@@ -196,4 +209,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
