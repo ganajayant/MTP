@@ -10,4 +10,5 @@ run-script:
 
 run:
 	@echo "Running main.py..."
-	python main.py
+	uv run main.py
+

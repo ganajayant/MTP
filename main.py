@@ -209,11 +209,10 @@ def main():
     presence_penalty = config["sampling"]["presence_penalty"]
 
     use_local = config["use_local"]
-    load_datasets = config["load_dataset"]
+    should_load_datasets = config["load_dataset"]
 
-    if load_datasets:
+    if should_load_datasets:
         load_datasets(datasets)
-
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     model_safe = model_name.split("/")[-1].replace(".", "-")
