@@ -1,9 +1,11 @@
 import csv
 import os
+from datetime import datetime
 from typing import Dict, List
 
 import ir_datasets
 import tqdm
+import yaml
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain.messages import HumanMessage, ToolMessage
@@ -18,6 +20,11 @@ def get_dotenv() -> Dict[str, SecretStr]:
     if not g_key:
         raise ValueError("GROQ_API_KEY not found in environment variables")
     return {"GROQ_API_KEY": SecretStr(g_key)}
+
+
+def load_config(path="config/run.yaml"):
+    with open(path, "r") as f:
+        return yaml.safe_load(f)
 
 
 def load_datasets(datasets: list):
@@ -192,43 +199,63 @@ def process_dataset(dataset_name, chain, model_with_tools, tools_by_name, result
 
 def main():
     keys = get_dotenv()
+    config = load_config()
+    datasets = config["datasets"]
 
-    datasets = [
-        "msmarco-passage/trec-dl-2019",
-        "beir/webis-touche2020",
-        "trec-fair/2021/train",
-    ]
+    model_name = config["model"]
 
-    OPTIONS = {
-        "model": "openai/gpt-oss-120b",
-        "load_datasets": False,
-        "use_local": True,
-    }
+    temperature = config["sampling"]["temperature"]
+    top_p = config["sampling"]["top_p"]
+    presence_penalty = config["sampling"]["presence_penalty"]
 
-    if OPTIONS["load_datasets"]:
+    use_local = config["use_local"]
+    load_datasets = config["load_dataset"]
+
+    if load_datasets:
         load_datasets(datasets)
 
-    results_dir = "results"
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    model_safe = model_name.split("/")[-1].replace(".", "-")
+    run_dir = f"{timestamp}_{model_safe}"
+
+    results_dir = os.path.join("results", run_dir)
     os.makedirs(results_dir, exist_ok=True)
+
     print(f"Results will be saved to: {os.path.abspath(results_dir)}/")
 
-    if OPTIONS["use_local"]:
+    config_path = os.path.join(results_dir, "config.yaml")
+    with open(config_path, "w") as f:
+        yaml.dump(config, f)
+
+    print(f"Saved config to: {config_path}")
+
+    if use_local:
+        # llm = init_chat_model(
+        #     model="openai/gpt-oss-20b",
+        #     model_provider="openai",
+        #     temperature=0,
+        #     openai_api_base="http://127.0.0.1:8000/v1",
+        #     openai_api_key="EMPTY",
+        # )
         llm = init_chat_model(
-            model="openai/gpt-oss-20b",
+            model=model_name,
             model_provider="openai",
-            temperature=0,
+            temperature=temperature,
+            top_p=top_p,
+            presence_penalty=presence_penalty,
             openai_api_base="http://127.0.0.1:8000/v1",
             openai_api_key="EMPTY",
         )
     else:
         llm = init_chat_model(
-            OPTIONS["model"],
+            model_name,
             model_provider="groq",
             temperature=0,
             groq_api_key=keys["GROQ_API_KEY"],
         )
 
-    print(f"Initialized LLM: {OPTIONS['model']}")
+    print(f"Initialized LLM: {model_name}")
 
     tool_kit: List[BaseTool] = [rank_fairly, rank_diversely, rank_lexically, reranker]
     tools_by_name = {t.name: t for t in tool_kit}
