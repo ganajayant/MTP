@@ -2,7 +2,7 @@
 
 activate:
 	@echo "Activating virtual environment..."
-	. venv/bin/activate
+	. .venv/bin/activate
 
 run-script:
 	@echo "Running run.sh..."
@@ -11,4 +11,3 @@ run-script:
 run:
 	@echo "Running main.py..."
 	uv run main.py
-

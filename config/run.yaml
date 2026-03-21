@@ -2,7 +2,7 @@ model: Qwen/Qwen3-4B-Thinking-2507
 
 use_local: true
 
-load_dataset: true
+load_dataset: false
 
 sampling:
   temperature: 0.4

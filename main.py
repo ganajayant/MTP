@@ -213,17 +213,17 @@ def main():
 
     if should_load_datasets:
         load_datasets(datasets)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp: str = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    model_safe = model_name.split("/")[-1].replace(".", "-")
-    run_dir = f"{timestamp}_{model_safe}"
+    model_safe: str = model_name.split("/")[-1].replace(".", "-")
+    run_dir: str = f"{timestamp}_{model_safe}"
 
-    results_dir = os.path.join("results", run_dir)
-    os.makedirs(results_dir, exist_ok=True)
+    results_dir: str = os.path.join("results", run_dir)
+    os.makedirs(name=results_dir, exist_ok=True)
 
     print(f"Results will be saved to: {os.path.abspath(results_dir)}/")
 
-    config_path = os.path.join(results_dir, "config.yaml")
+    config_path: str = os.path.join(results_dir, "config.yaml")
     with open(config_path, "w") as f:
         yaml.dump(config, f)
 
