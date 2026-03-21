@@ -2770,6 +2770,7 @@ dependencies = [
     { name = "langgraph" },
     { name = "pyautocorpus" },
     { name = "python-dotenv" },
+    { name = "pyyaml" },
     { name = "vllm" },
 ]
 
@@ -2788,6 +2789,7 @@ requires-dist = [
     { name = "langgraph", specifier = ">=1.0.8" },
     { name = "pyautocorpus", specifier = ">=0.1.12" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "vllm", specifier = ">=0.16.0" },
 ]
 
