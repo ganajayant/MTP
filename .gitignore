@@ -12,3 +12,4 @@ wheels/
 # Temp file
 .DS_Store
 .env
+results/
